@@ -10,13 +10,26 @@ use crate::json_extractor::*;
 pub fn rest_swell(db: Db) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
     rest_is_registered(db.clone())
         .or(rest_register(db.clone()))
+        .or(rest_get_user_by_id(db.clone()))
         .or(warp::post().and(warp::path("files")).and(warp::fs::dir("files/")))
 }
 
+pub fn rest_get_user_by_id(db: Db) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+    warp::path!("get_user_by_id" / i32)
+        .and(warp::get())
+        .and(with_db(db))
+        .and_then(handle_get_user_by_id)
+}
+
+pub fn rest_get_user_by_eth(db: Db) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+    warp::path!("get_user_by_eth" / String)
+        .and(warp::get())
+        .and(with_db(db))
+        .and_then(handle_get_user_by_eth)
+}
 
 pub fn rest_is_registered(db: Db) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
-    warp::path!("is_registered" / u64)
-        .map(|eth_addr: u64| eth_addr.to_string())
+    warp::path!("is_registered" / String)
         .and(warp::get())
         //.and(warp::path::param())
         .and(with_db(db))

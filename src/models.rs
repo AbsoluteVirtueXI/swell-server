@@ -38,3 +38,8 @@ pub struct ErrorMessage {
     pub code: u16,
     pub message: String
 }
+
+#[derive(Serialize)]
+pub struct Eth2Id {
+    pub id: u64
+}

@@ -1,6 +1,7 @@
 use sqlx::PgPool;
 use std::env;
 use crate::models::*;
+use anyhow::Result;
 
 pub type Db = PgPool;
 
@@ -11,27 +12,30 @@ pub async fn get_db() -> Db {
         .build(&env::var("DATABASE_URL").unwrap()).await.unwrap()
 }
 
-pub async fn db_get_user_id_by_eth_addr(ethd_addr: String, db: &Db) -> Option<User> {
+
+pub async fn db_get_user_by_eth(eth_addr: String, db: &Db) -> Option<User>  {
+    match sqlx::query_as!(User, "SELECT * FROM users WHERE eth_addr = $1", eth_addr)
+        .fetch_one(db).await {
+        Ok(user) => Some(user),
+        Err(e) => None,
+    }
 
 }
 
-pub async fn db_get_user_by_eth_addr(eth_addr: String, db: &Db) -> Option<User>  {
-    match sqlx::query_as!(User, "SELECT * FROM users WHERE eth_addr = $1", eth_addr)
-        .fetch_one(db).await
-    {
+pub async fn db_get_user_by_id(id: i32, db: &Db) -> Option<User> {
+    match sqlx::query_as!(User, "SELECT * FROM users WHERE id = $1", id)
+        .fetch_one(db).await {
         Ok(user) => Some(user),
-        Err(e) => None
+        Err(e) => None,
     }
 }
 
-pub async fn db_get_user_by_id(id: i32, db: &Db) -> User {
-    sqlx::query_as!(User, "SELECT * FROM users WHERE id = $1", id)
-        .fetch_one(db).await.unwrap()
-}
-
-pub async fn db_get_user_by_login(login: String, db: &Db) -> User {
-    sqlx::query_as!(User, "SELECT * FROM users WHERE login = $1", login)
-        .fetch_one(db).await.unwrap()
+pub async fn db_get_user_by_login(login: String, db: &Db) -> Option<User> {
+    match sqlx::query_as!(User, "SELECT * FROM users WHERE login = $1", login)
+        .fetch_one(db).await {
+        Ok(user) => Some(user),
+        Err(e) => None,
+    }
 }
 
 pub async fn db_get_user_by_register_request(register_request: RegisterRequest, db: &Db) -> User {
