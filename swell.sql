@@ -3,8 +3,8 @@ DROP TABLE videos;
 
 CREATE TABLE users(
     id SERIAL PRIMARY KEY NOT NULL,
-    login TEXT NOT NULL,
-    eth_addr TEXT NOT NULL,
+    login TEXT NOT NULL UNIQUE,
+    eth_addr TEXT NOT NULL UNIQUE,
     bio TEXT DEFAULT 'Hello, i am new on swell!',
     czar INTEGER DEFAULT 1000,
     videos INTEGER[] DEFAULT '{0}',

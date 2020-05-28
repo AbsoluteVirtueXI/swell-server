@@ -11,6 +11,10 @@ pub async fn get_db() -> Db {
         .build(&env::var("DATABASE_URL").unwrap()).await.unwrap()
 }
 
+pub async fn db_get_user_id_by_eth_addr(ethd_addr: String, db: &Db) -> Option<User> {
+
+}
+
 pub async fn db_get_user_by_eth_addr(eth_addr: String, db: &Db) -> Option<User>  {
     match sqlx::query_as!(User, "SELECT * FROM users WHERE eth_addr = $1", eth_addr)
         .fetch_one(db).await

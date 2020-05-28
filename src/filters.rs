@@ -5,8 +5,12 @@ use crate::models::*;
 use crate::handlers::*;
 use crate::json_extractor::*;
 
+
+
 pub fn rest_swell(db: Db) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
-    rest_is_registered(db.clone()).or(rest_register(db.clone()))
+    rest_is_registered(db.clone())
+        .or(rest_register(db.clone()))
+        .or(warp::post().and(warp::path("files")).and(warp::fs::dir("files/")))
 }
 
 
