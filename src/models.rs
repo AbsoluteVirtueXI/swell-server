@@ -34,7 +34,7 @@ pub struct RegisterRequest {
 }
 
 #[derive(Serialize)]
-pub struct ErrorMessage {
+pub struct Response {
     pub code: u16,
     pub message: String
 }

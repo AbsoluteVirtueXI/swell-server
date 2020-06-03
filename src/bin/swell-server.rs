@@ -9,5 +9,4 @@ async fn main() {
 
     let routes = rest_api;
     warp::serve(routes).run(([192, 168, 0, 10], 7777)).await;
-    println!("Hello, world!");
 }

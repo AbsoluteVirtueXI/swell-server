@@ -13,6 +13,7 @@ pub async fn get_db() -> Db {
 }
 
 
+
 pub async fn db_get_user_by_eth(eth_addr: String, db: &Db) -> Option<User>  {
     match sqlx::query_as!(User, "SELECT * FROM users WHERE eth_addr = $1", eth_addr)
         .fetch_one(db).await {
@@ -48,4 +49,9 @@ pub async fn db_create_user(eth_addr: String, login: String, db: &Db) -> u64 {
     sqlx::query!("INSERT INTO users (eth_addr, login) VALUES ($1, $2)", eth_addr, login)
         .execute(db).await.unwrap()
 
+}
+
+pub async fn db_get_id(eth_addr: String, db: &Db) -> i32 {
+    let res = sqlx::query_as!(User, "SELECT * FROM USERS where eth_addr = $1", eth_addr).fetch_one(db).await.unwrap();
+    res.id
 }
