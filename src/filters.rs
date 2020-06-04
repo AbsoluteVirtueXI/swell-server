@@ -11,7 +11,9 @@ pub fn rest_swell(db: Db) -> impl Filter<Extract = impl warp::Reply, Error = war
     rest_is_registered(db.clone())
         .or(rest_register(db.clone()))
         .or(rest_get_user_by_id(db.clone()))
-        .or(warp::post().and(warp::path("files")).and(warp::fs::dir("files/")))
+        .or(warp::path("files")
+            .and(warp::get())
+            .and(warp::fs::dir("files/")))
         .or(rest_get_id(db.clone()))
 }
 
