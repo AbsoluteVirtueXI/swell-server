@@ -7,9 +7,9 @@ CREATE TABLE users(
     eth_addr TEXT NOT NULL UNIQUE,
     bio TEXT DEFAULT 'Hello, i am new on swell!',
     czar INTEGER DEFAULT 1000,
-    videos INTEGER[] DEFAULT '{0}',
-    videos_bought INTEGER[] DEFAULT '{0}',
-    liked INTEGER[] DEFAULT '{0}'
+    videos INTEGER[] DEFAULT '{}',
+    videos_bought INTEGER[] DEFAULT '{}',
+    liked INTEGER[] DEFAULT '{}'
 );
 
 CREATE TABLE videos(
