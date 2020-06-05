@@ -51,6 +51,11 @@ pub async fn handle_get_user_by_id(id: i32, db: Db) -> Result<impl warp::Reply, 
     }
 }
 
+pub async fn handle_get_all_videos(db: Db) -> Result<impl warp::Reply, Infallible> {
+    let lst_video = db_get_all_videos(&db).await;
+    Ok(warp::reply::json(&lst_video))
+}
+
 pub async fn handle_get_user_by_eth(eth: String, db: Db) -> Result<impl warp::Reply, Infallible> {
     match db_get_user_by_eth(eth, &db).await {
         Some(value) => Ok(warp::reply::json(&value)),

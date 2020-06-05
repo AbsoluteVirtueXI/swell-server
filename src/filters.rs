@@ -16,6 +16,13 @@ pub fn rest_swell(db: Db) -> impl Filter<Extract = impl warp::Reply, Error = war
             .and(warp::fs::dir("files/")))
         .or(rest_get_id(db.clone()))
         .or(rest_upload_video(db.clone()))
+        .or(rest_get_all_videos(db.clone()))
+}
+
+pub fn rest_get_all_videos(db: Db) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+    warp::path!("get_all_videos")
+        .and(with_db(db))
+        .and_then(handle_get_all_videos)
 }
 
 pub fn rest_upload_video(db: Db) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {

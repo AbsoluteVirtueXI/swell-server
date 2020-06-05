@@ -16,6 +16,7 @@ pub struct User {
     pub liked: Vec<i32>,
 }
 
+#[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct Video {
     pub id: i32,
     pub owner_id: i32,
