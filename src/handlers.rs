@@ -3,6 +3,18 @@ use crate::db::*;
 use std::convert::Infallible;
 use warp::http::StatusCode;
 use crate::json_extractor;
+use warp::{
+    filters::multipart::{FormData, Part},
+    reject, Buf, Rejection,
+};
+use futures::StreamExt;
+use serde::de::DeserializeOwned;
+use serde_json;
+use uuid::Uuid;
+use serde::{Deserialize, Serialize};
+use tokio::fs::File;
+use tokio::prelude::*;
+
 
 pub async fn handle_get_id(eth_addr: String, db: Db) -> Result<impl warp::Reply, Infallible> {
     let id = db_get_id(eth_addr, &db).await;
@@ -46,5 +58,80 @@ pub async fn handle_get_user_by_eth(eth: String, db: Db) -> Result<impl warp::Re
             code: 404u16,
             message: String::from("User not found"),
         }))
+    }
+}
+
+
+pub async fn deserialize_form_data(form_data: FormData) -> Result<ResultData, Rejection> {
+    let mut result_data = ResultData::new();
+    let parts: Vec<PartType> = form_data
+        .then(|part| async {
+            let mut part = part.unwrap();
+            match part.name() {
+                "content" => PartType::FilePart(part),
+                "title" => {
+                    let part_bytes = part.data().await.unwrap().unwrap();
+                    let value = std::str::from_utf8(part_bytes.bytes()).unwrap().to_string();
+                    PartType::Title(value)
+                },
+                "bio" => {
+                    let part_bytes = part.data().await.unwrap().unwrap();
+                    let value = std::str::from_utf8(part_bytes.bytes()).unwrap().to_string();
+                    PartType::Bio(value)
+                },
+                "owner_id" => {
+                    let part_bytes = part.data().await.unwrap().unwrap();
+                    let value = std::str::from_utf8(part_bytes.bytes()).unwrap().to_string();
+                    let value = value.parse::<i32>().unwrap();
+                    PartType::OwnerId(value)
+                },
+                "price" => {
+                    let part_bytes = part.data().await.unwrap().unwrap();
+                    let value = std::str::from_utf8(part_bytes.bytes()).unwrap().to_string();
+                    let value = value.parse::<i32>().unwrap();
+                    PartType::Price(value)
+                }
+                _ => PartType::NoFormData,
+            }
+        })
+        .collect::<Vec<PartType>>()
+        .await;
+
+    for part in parts {
+        match part {
+            PartType::FilePart(file_part) => {
+                result_data.file_part = Some(file_part);
+            }
+            PartType::Title(title) => {
+                result_data.title = title;
+            }
+            PartType::Bio(bio) => {
+                result_data.bio = bio;
+            }
+            PartType::Price(price) => {
+                result_data.price = price;
+            }
+            PartType::OwnerId(id) => {
+                result_data.owner_id = id;
+            }
+            PartType::NoFormData => (),
+        };
+    }
+
+    Ok(result_data)
+}
+
+pub async fn save_video_file(video: ResultData, db: Db) -> Result<impl warp::Reply, Infallible> {
+    let uuid = Uuid::new_v4().to_string();
+    let file_path = format!("files/{}.mp4", uuid);
+    let data_buf = video.file_part.unwrap().data().await.unwrap().unwrap();
+    let data_bytes = data_buf.bytes();
+    let mut file = File::create(file_path.clone()).await.unwrap();
+    file.write_all(data_bytes).await.unwrap();
+    let row = db_add_video(video.owner_id, video.title, video.bio, video.price, file_path, &db).await;
+    if row != 0 {
+        Ok(StatusCode::CREATED)
+    } else {
+        Ok(StatusCode::BAD_REQUEST)
     }
 }

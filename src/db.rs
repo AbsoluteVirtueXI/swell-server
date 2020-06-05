@@ -55,3 +55,11 @@ pub async fn db_get_id(eth_addr: String, db: &Db) -> i32 {
     let res = sqlx::query_as!(User, "SELECT * FROM USERS where eth_addr = $1", eth_addr).fetch_one(db).await.unwrap();
     res.id
 }
+
+pub async fn db_add_video(owner_id: i32, title: String, bio: String, price: i32, path: String, db:&Db) -> u64 {
+    sqlx::query!("INSERT INTO videos (owner_id, title, bio, price, path) VALUES ($1, $2, $3, $4, $5)",
+    owner_id, title, bio, price, path).execute(db).await.unwrap();
+    let res = sqlx::query_as!(Video, "SELECT * FROM videos where path = $1", path).fetch_one(db).await.unwrap();
+    sqlx::query!("UPDATE users SET videos = array_append(videos, $1) WHERE id = $2", res.id, owner_id).execute(db).await.unwrap()
+
+}

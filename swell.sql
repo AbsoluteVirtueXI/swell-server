@@ -15,8 +15,10 @@ CREATE TABLE users(
 CREATE TABLE videos(
     id SERIAL PRIMARY KEY NOT NULL,
     owner_id SERIAL NOT NULL,
+    title TEXT,
+    bio TEXT,
+    price INTEGER DEFAULT 0,
     path TEXT NOT NULL,
     views INTEGER DEFAULT 0,
-    liked INTEGER DEFAULT 0,
-    price INTEGER DEFAULT 0
+    liked INTEGER DEFAULT 0
 );
