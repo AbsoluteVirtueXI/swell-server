@@ -2,7 +2,8 @@
 #![cfg_attr(feature = "external_doc", feature(external_doc))]
 #![cfg_attr(feature = "external_doc", doc(include = "../README.md"))]
 
-pub use ethereum_types::{Address, H256, U256};
+pub use ethereum_types:
+:{Address, H256, U256};
 use keccak_hash::keccak;
 use rlp::RlpStream;
 use std::ops::Deref;
