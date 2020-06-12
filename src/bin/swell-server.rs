@@ -1,5 +1,5 @@
 //psql -d swell -a -f swell.sql
-
+//SERVER COMIT TEST
 use swell_server::db::*;
 use swell_server::filters::*;
 
