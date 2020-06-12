@@ -9,8 +9,5 @@ async fn main() {
 
     let routes = rest_api;
     warp::serve(routes)
-        .tls()
-        .cert_path("cert/localhost.crt")
-        .key_path("cert/localhost.key")
-        .run(([192, 168, 0, 11], 7777)).await;
+        .run(([127, 0, 0, 1], 7777)).await;
 }
