@@ -140,3 +140,18 @@ pub async fn save_video_file(video: ResultData, db: Db) -> Result<impl warp::Rep
         Ok(StatusCode::BAD_REQUEST)
     }
 }
+
+pub async fn save_image_file(image: ResultData, db: Db) -> Result<impl warp::Reply, Infallible> {
+    let uuid = Uuid::new_v4().to_string();
+    let file_path = format!("files/{}.jpg", uuid);
+    let data_buf = image.file_part.unwrap().data().await.unwrap().unwrap();
+    let data_bytes = data_buf.bytes();
+    let mut file = File::create(file_path.clone()).await.unwrap();
+    file.write_all(data_bytes).await.unwrap();
+    let row = db_add_image(image.owner_id, image.title, image.bio, image.price, file_path, &db).await;
+    if row != 0 {
+        Ok(StatusCode::CREATED)
+    } else {
+        Ok(StatusCode::BAD_REQUEST)
+    }
+}

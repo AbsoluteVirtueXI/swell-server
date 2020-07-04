@@ -65,5 +65,11 @@ pub async fn db_add_video(owner_id: i32, title: String, bio: String, price: i32,
     owner_id, title, bio, price, path).execute(db).await.unwrap();
     let res = sqlx::query_as!(Video, "SELECT * FROM videos where path = $1", path).fetch_one(db).await.unwrap();
     sqlx::query!("UPDATE users SET videos = array_append(videos, $1) WHERE id = $2", res.id, owner_id).execute(db).await.unwrap()
+}
 
+pub async fn db_add_image(owner_id: i32, title: String, bio: String, price: i32, path: String, db: &Db) -> u64 {
+    sqlx::query!("INSERT INTO items (owner_id, title, bio, price, path) VALUES ($1, $2, $3, $4, $5)",
+    owner_id, title, bio, price, path).execute(db).await.unwrap();
+    let res = sqlx::query_as!(Item, "SELECT * FROM items where path = $1", path).fetch_one(db).await.unwrap();
+    sqlx::query!("UPDATE users SET items = array_append(items, $1) where id = $2", res.id, owner_id).execute(db).await.unwrap()
 }

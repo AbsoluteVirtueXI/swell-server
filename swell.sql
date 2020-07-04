@@ -1,5 +1,6 @@
 DROP TABLE users;
 DROP TABLE videos;
+DROP TABLE items;
 
 CREATE TABLE users(
     id SERIAL PRIMARY KEY NOT NULL,
@@ -9,10 +10,23 @@ CREATE TABLE users(
     czar INTEGER DEFAULT 1000,
     videos INTEGER[] DEFAULT '{}',
     videos_bought INTEGER[] DEFAULT '{}',
+    items INTEGER[] DEFAULT '{}',
+    items_bought INTEGER[] DEFAULT '{}',
     liked INTEGER[] DEFAULT '{}'
 );
 
 CREATE TABLE videos(
+    id SERIAL PRIMARY KEY NOT NULL,
+    owner_id SERIAL NOT NULL,
+    title TEXT,
+    bio TEXT,
+    price INTEGER DEFAULT 0,
+    path TEXT NOT NULL,
+    views INTEGER DEFAULT 0,
+    liked INTEGER DEFAULT 0
+);
+
+CREATE TABLE items(
     id SERIAL PRIMARY KEY NOT NULL,
     owner_id SERIAL NOT NULL,
     title TEXT,

@@ -13,11 +13,25 @@ pub struct User {
     pub czar: i32,
     pub videos: Vec<i32>,
     pub videos_bought: Vec<i32>,
+    pub items: Vec<i32>,
+    pub items_bought: Vec<i32>,
     pub liked: Vec<i32>,
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct Video {
+    pub id: i32,
+    pub owner_id: i32,
+    pub path: String,
+    pub bio: String,
+    pub title: String,
+    pub views: i32,
+    pub liked: i32,
+    pub price: i32,
+}
+
+#[derive(Debug, Deserialize, Serialize, Clone)]
+pub struct Item {
     pub id: i32,
     pub owner_id: i32,
     pub path: String,
