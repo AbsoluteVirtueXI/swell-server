@@ -27,6 +27,10 @@ pub async fn db_get_all_videos(db: &Db) -> Vec<Video> {
     sqlx::query_as!(Video, "SELECT * FROM videos").fetch_all(db).await.unwrap()
 }
 
+pub async fn db_get_all_items(db: &Db) -> Vec<Item> {
+    sqlx::query_as!(Item, "SELECT * FROM items").fetch_all(db).await.unwrap()
+}
+
 pub async fn db_get_user_by_id(id: i32, db: &Db) -> Option<User> {
     match sqlx::query_as!(User, "SELECT * FROM users WHERE id = $1", id)
         .fetch_one(db).await {
