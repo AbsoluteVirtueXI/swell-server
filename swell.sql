@@ -29,3 +29,23 @@ CREATE TABLE follows(
     UNIQUE (followee_id, follower_id),
     PRIMARY KEY (followee_id, follower_id)
 );
+
+CREATE TABLE medias(
+    id BIGSERIAL PRIMARY KEY NOT NULL,
+    path TEXT NOT NULL UNIQUE,
+    media_type TEXT NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE products (
+    id BIGSERIAL PRIMARY KEY NOT NULL,
+    product_type TEXT NOT NULL,
+    seller_id BIGINT NOT NULL REFERENCES users(id),
+    buyers_id BIGINT DEFAULT 0,
+    description TEXT DEFAULT '' NOT NULL,
+    price BIGINT DEFAULT 0,
+    media_id BIGINT NOT NULL REFERENCES medias(id),
+    views BIGINT DEFAULT 0,
+    likes BIGINT DEFAULT 0,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);

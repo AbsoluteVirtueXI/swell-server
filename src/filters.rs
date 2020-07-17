@@ -2,9 +2,15 @@ use warp::Filter;
 use crate::json_extractor::*;
 use crate::database::*;
 use crate::handlers::*;
+use warp::{
+    filters::multipart::{FormData, Part},
+    reject, Buf, Rejection,
+};
+
+
+use serde::{Deserialize, Serialize};
 
 /*
-use serde::{Deserialize, Serialize};
 use crate::database::*;
 use crate::models::*;
 use crate::handlers::*;
@@ -21,6 +27,7 @@ pub fn rest_swell(db: Database) -> impl Filter<Extract = impl warp::Reply, Error
         .or(rest_get_user_by_id(db.clone()))
         .or(rest_get_my_profile(db.clone()))
         .or(rest_get_user_by_username(db.clone()))
+        .or(rest_upload_product(db.clone()))
 }
 
 pub fn rest_register(db: Database) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
@@ -53,7 +60,26 @@ pub fn rest_get_user_by_username(db: Database) -> impl Filter<Extract = impl war
         .and_then(handle_get_user_by_username)
 }
 
+pub fn rest_upload_product(db: Database) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+    warp::path!("upload_product")
+        .and(warp::post())
+        .and(warp::header::<String>("Authorization"))
+        .and(warp::multipart::form())
+        .and_then(deserialize_form_data)
+        .and(with_db(db))
+        .and_then(save_media_file)
+}
+
+
 /*
+pub fn rest_upload_item(db: Db) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+    warp::path!("upload_item")
+        .and(warp::multipart::form())
+        .and_then(deserialize_form_data)
+        .and(with_db(db))
+        .and_then(save_image_file)
+}
+
 
 pub fn rest_swell(db: Db) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
     rest_is_registered(db.clone())
@@ -89,13 +115,8 @@ pub fn rest_upload_video(db: Db) -> impl Filter<Extract = impl warp::Reply, Erro
         .and_then(save_video_file)
 }
 
-pub fn rest_upload_item(db: Db) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
-    warp::path!("upload_item")
-        .and(warp::multipart::form())
-        .and_then(deserialize_form_data)
-        .and(with_db(db))
-        .and_then(save_image_file)
-}
+
+
 
 pub fn rest_get_id(db: Db) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
     warp::path!("get_id" / String)

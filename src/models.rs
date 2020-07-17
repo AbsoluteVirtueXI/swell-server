@@ -1,3 +1,5 @@
+use sqlx::Type;
+
 use serde::{Deserialize, Serialize, Deserializer};
 use warp::{
     filters::multipart::{FormData, Part},
@@ -28,6 +30,40 @@ pub struct Response {
     pub code: u16,
     pub data: String
 }
+
+
+#[derive(Debug, Deserialize, Serialize, Clone)]
+pub struct Product {
+    pub id: i64,
+    pub product_type: String,
+    pub seller_id: i64,
+    pub buyers_id: i64,
+    pub description: String,
+    pub price: i64,
+    pub media_id: i64,
+    pub views: i64,
+    pub likes: i64,
+    pub created_at: DateTime<Utc>,
+
+}
+
+#[derive(Debug, Deserialize, Serialize, Clone)]
+pub struct Media {
+    pub id: i64,
+    pub path: String,
+    pub media_type: String,
+    pub created_at: DateTime<Utc>,
+
+}
+
+/*
+CREATE TABLE medias(
+id BIGSERIAL PRIMARY KEY NOT NULL,
+path TEXT NOT NULL,
+media_type MEDIA_TYPE NOT NULL,
+created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+*/
 
 /*
 #[derive(Debug, Deserialize, Serialize, Clone)]
@@ -66,14 +102,16 @@ pub struct IsRegisteredRequest{
 pub struct Eth2Id {
     pub id: u64
 }
+*/
 
 #[derive(Deserialize, Serialize, Clone)]
-pub struct UploadVideoFormData {
-    pub owner_id: i32,
-    pub title: String,
-    pub bio: String,
-    pub price: i32,
+pub struct UploadProductFormData {
+    pub seller_id: i32,
+    pub description: String,
+    pub product_type: String,
+    pub price: i64,
     pub content: Vec<u8>,
+    pub media_type: String
 }
 
 
@@ -92,30 +130,33 @@ pub enum MessageError {
 }
 
 pub enum PartType {
-    OwnerId(i32),
-    Title(String),
-    Bio(String),
-    Price(i32),
+    SellerId(i64),
+    Description(String),
+    ProductType(String),
+    Price(i64),
     FilePart(Part),
+    MediaType(String),
     NoFormData,
 }
 
 pub struct ResultData {
-    pub owner_id: i32,
-    pub title: String,
-    pub bio: String,
-    pub price: i32,
+    pub seller_id: i64,
+    pub description: String,
+    pub product_type: String,
+    pub price: i64,
     pub file_part: Option<Part>,
+    pub media_type: String
 }
 
 impl ResultData {
     pub fn new() -> Self {
         ResultData {
-            owner_id: 0,
-            title: "".to_string(),
-            bio: "".to_string(),
+            seller_id: 0,
+            description: "".to_string(),
+            product_type: "".to_string(),
             price: 0,
             file_part: None,
+            media_type: "".to_string(),
         }
     }
-}*/
+}

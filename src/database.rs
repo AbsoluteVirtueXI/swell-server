@@ -84,7 +84,7 @@ pub async fn db_add_image(owner_id: i32, title: String, bio: String, price: i32,
 
 
 use sqlx::postgres::PgPool;
-use crate::models::{User, RegisterInput};
+use crate::models::*;
 
 pub type Error = Box<dyn std::error::Error + Send + Sync>;
 
@@ -200,5 +200,16 @@ impl Database {
         ).execute(&self.pool).await?;
         Ok(true)
     }
+
+    pub async fn db_add_product(&self, seller_id: i64, description: String, price: i64, product_type: String, media_type: String, path: String) -> Result<bool, sqlx::Error> {
+        let sql_res = sqlx::query_as!(Media, r#"INSERT INTO medias (path, media_type) VALUES ($1, $2) RETURNING *"#, path, media_type)
+            .fetch_one(&self.pool)
+            .await.unwrap();
+        let sql_res2 = sqlx::query_as!(Product, r#"
+        INSERT INTO products(product_type, seller_id, description, price, media_id) VALUES ($1, $2, $3, $4, $5) RETURNING *
+        "#, product_type, seller_id, description, price, sql_res.id).fetch_one(&self.pool).await.unwrap();
+        Ok(true)
+    }
+
 }
 
