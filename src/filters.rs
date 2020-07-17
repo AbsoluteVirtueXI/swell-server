@@ -1,11 +1,59 @@
 use warp::Filter;
+use crate::json_extractor::*;
+use crate::database::*;
+use crate::handlers::*;
+
+/*
 use serde::{Deserialize, Serialize};
-use crate::db::*;
+use crate::database::*;
 use crate::models::*;
 use crate::handlers::*;
-use crate::json_extractor::*;
+
+*/
+
+/// Make the db accessible within filter
+fn with_db(db: Database) -> impl Filter<Extract = (Database,), Error = std::convert::Infallible> + Clone {
+    warp::any().map(move || db.clone())
+}
+
+pub fn rest_swell(db: Database) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+    rest_register(db.clone())
+        .or(rest_get_user_by_id(db.clone()))
+        .or(rest_get_my_profile(db.clone()))
+        .or(rest_get_user_by_username(db.clone()))
+}
+
+pub fn rest_register(db: Database) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+    warp::path!("register")
+        .and(warp::post())
+        .and(json_body_register())
+        .and(with_db(db))
+        .and_then(handle_register)
+}
 
 
+pub fn rest_get_user_by_id(db: Database) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+    warp::path!("get_user_by_id" / i64)
+        .and(warp::get())
+        .and(with_db(db))
+        .and_then(handle_get_user_by_id)
+}
+
+pub fn rest_get_my_profile(db: Database) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+    warp::path!("get_my_profile")
+        .and(warp::header::<String>("Authorization"))
+        .and(with_db(db))
+        .and_then(handle_get_my_profile)
+}
+
+pub fn rest_get_user_by_username(db: Database) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+    warp::path!("get_user_by_username" / String)
+        .and(warp::get())
+        .and(with_db(db))
+        .and_then(handle_get_user_by_username)
+}
+
+/*
 
 pub fn rest_swell(db: Db) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
     rest_is_registered(db.clone())
@@ -89,7 +137,5 @@ pub fn rest_register(db: Db) -> impl Filter<Extract = impl warp::Reply, Error = 
 }
 
 
-/// Make the db accessible within filter
-fn with_db(db: Db) -> impl Filter<Extract = (Db,), Error = std::convert::Infallible> + Clone {
-    warp::any().map(move || db.clone())
-}
+
+ */

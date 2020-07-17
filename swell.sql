@@ -1,38 +1,31 @@
-DROP TABLE users;
-DROP TABLE videos;
-DROP TABLE items;
+DROP TABLE products cascade;
+DROP TABLE medias cascade;
+DROP TABLE follows cascade;
+DROP TABLE users cascade;
+DROP TYPE PRODUCT_TYPE;
+DROP TYPE MEDIA_TYPE;
 
-CREATE TABLE users(
-    id SERIAL PRIMARY KEY NOT NULL,
-    login TEXT NOT NULL UNIQUE,
-    eth_addr TEXT NOT NULL UNIQUE,
-    bio TEXT DEFAULT 'Hello, i am new on swell!',
-    czar INTEGER DEFAULT 1000,
-    videos INTEGER[] DEFAULT '{}',
-    videos_bought INTEGER[] DEFAULT '{}',
-    items INTEGER[] DEFAULT '{}',
-    items_bought INTEGER[] DEFAULT '{}',
-    liked INTEGER[] DEFAULT '{}'
+SET timezone TO 'UTC';
+ALTER DATABASE swell SET timezone TO 'Europe/Paris';
+
+CREATE TYPE PRODUCT_TYPE as ENUM('MEDIA', 'REAL');
+CREATE TYPE MEDIA_TYPE as ENUM('VIDEO', 'IMAGE');
+
+CREATE TABLE users (
+    id BIGSERIAL PRIMARY KEY NOT NULL,
+    username TEXT NOT NULL UNIQUE,
+    eth_address TEXT NOT NULL UNIQUE,
+    bio TEXT DEFAULT 'Hello, i am new on Squarrin',
+    quadreum BIGINT DEFAULT 1000,
+    avatar TEXT DEFAULT '',
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE TABLE videos(
-    id SERIAL PRIMARY KEY NOT NULL,
-    owner_id SERIAL NOT NULL,
-    title TEXT,
-    bio TEXT,
-    price INTEGER DEFAULT 0,
-    path TEXT NOT NULL,
-    views INTEGER DEFAULT 0,
-    liked INTEGER DEFAULT 0
-);
 
-CREATE TABLE items(
-    id SERIAL PRIMARY KEY NOT NULL,
-    owner_id SERIAL NOT NULL,
-    title TEXT,
-    bio TEXT,
-    price INTEGER DEFAULT 0,
-    path TEXT NOT NULL,
-    views INTEGER DEFAULT 0,
-    liked INTEGER DEFAULT 0
+CREATE TABLE follows(
+    followee_id BIGINT NOT NULL REFERENCES users(id),
+    follower_id BIGINT NOT NULL REFERENCES users(id),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    UNIQUE (followee_id, follower_id),
+    PRIMARY KEY (followee_id, follower_id)
 );

@@ -1,5 +1,5 @@
-pub mod db;
+pub mod database;
 pub mod filters;
 mod handlers;
-mod models;
+pub mod models;
 mod json_extractor;

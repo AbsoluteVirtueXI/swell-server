@@ -1,6 +1,10 @@
 use crate::models::*;
-use crate::db::*;
+use crate::database::*;
+
 use std::convert::Infallible;
+use warp::http::StatusCode;
+
+/*
 use warp::http::StatusCode;
 use crate::json_extractor;
 use warp::{
@@ -14,8 +18,110 @@ use uuid::Uuid;
 use serde::{Deserialize, Serialize};
 use tokio::fs::File;
 use tokio::prelude::*;
+*/
 
 
+pub async fn handle_register(input: RegisterInput, db: Database) -> Result<impl warp::Reply, Infallible> {
+    let sql_res = db.add_user(input).await;
+    let code;
+    let data;
+    match sql_res {
+        Ok(user) => {
+            code = 200;
+            data = serde_json::to_string(&user).unwrap();
+        }
+        Err(e) => {
+            code = 403;
+            data = format!("{}", e);
+        }
+    }
+    Ok(warp::reply::json(&Response { code, data }))
+}
+
+pub async fn handle_get_user_by_id(id: i64, db: Database) -> Result<impl warp::Reply, Infallible> {
+    let sql_res = db.get_user_by_id(id).await;
+    let code;
+    let data;
+    match sql_res {
+        Ok(user_opt) => {
+            match user_opt {
+                Some(user) => {
+                    code = 200;
+                    data = serde_json::to_string(&user).unwrap();
+                }
+                None => {
+                    code = 404;
+                    data = String::from("User not found");
+                }
+            }
+        }
+        Err(e) => {
+            code = 403;
+            data = format!("{}", e);
+        }
+    }
+    Ok(warp::reply::json(&Response { code, data }))
+}
+
+pub async fn handle_get_my_profile(id: String, db: Database) -> Result<impl warp::Reply, Infallible> {
+    let code;
+    let data;
+    match id.parse::<i64>() {
+        Err(_) => {
+            code = 403;
+            data = String::from("Bad token format")
+        }
+        Ok(id) => {
+            let sql_res = db.get_user_by_id(id).await;
+            match sql_res {
+                Ok(user_opt) => {
+                    match user_opt {
+                        Some(user) => {
+                            code = 200;
+                            data = serde_json::to_string(&user).unwrap();
+                        }
+                        None => {
+                            code = 404;
+                            data = String::from("User not found");
+                        }
+                    }
+                }
+                Err(e) => {
+                    code = 403;
+                    data = format!("{}", e);
+                }
+            }
+        }
+    }
+    Ok(warp::reply::json(&Response { code, data }))
+}
+
+pub async fn handle_get_user_by_username(username: String, db: Database) -> Result<impl warp::Reply, Infallible> {
+    let sql_res = db.get_user_by_username(username).await;
+    let code;
+    let data;
+    match sql_res {
+        Ok(user_opt) => {
+            match user_opt {
+                Some(user) => {
+                    code = 200;
+                    data = serde_json::to_string(&user).unwrap();
+                }
+                None => {
+                    code = 404;
+                    data = String::from("User not found");
+                }
+            }
+        }
+        Err(e) => {
+            code = 403;
+            data = format!("{}", e);
+        }
+    }
+    Ok(warp::reply::json(&Response { code, data }))
+}
+
+/*
 pub async fn handle_get_id(eth_addr: String, db: Db) -> Result<impl warp::Reply, Infallible> {
     let id = db_get_id(eth_addr, &db).await;
     Ok(warp::reply::json(&Response{
@@ -160,3 +266,4 @@ pub async fn save_image_file(image: ResultData, db: Db) -> Result<impl warp::Rep
         Ok(StatusCode::BAD_REQUEST)
     }
 }
+ */

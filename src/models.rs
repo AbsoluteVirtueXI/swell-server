@@ -1,23 +1,35 @@
-use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Serialize, Deserializer};
 use warp::{
     filters::multipart::{FormData, Part},
     reject, Buf, Rejection,
 };
 
+use chrono::{DateTime, Utc, TimeZone};
+
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct User {
-    pub id: i32,
-    pub login: String,
-    pub eth_addr: String,
-    pub bio: String,
-    pub czar: i32,
-    pub videos: Vec<i32>,
-    pub videos_bought: Vec<i32>,
-    pub items: Vec<i32>,
-    pub items_bought: Vec<i32>,
-    pub liked: Vec<i32>,
+    pub id: i64,
+    pub username: String,
+    pub eth_address: String,
+    pub bio : String,
+    pub quadreum: i64,
+    pub avatar: String,
+    pub created_at: DateTime<Utc>,
 }
 
+#[derive(Deserialize)]
+pub struct RegisterInput {
+    pub username: String,
+    pub eth_address: String,
+}
+
+#[derive(Serialize)]
+pub struct Response {
+    pub code: u16,
+    pub data: String
+}
+
+/*
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct Video {
     pub id: i32,
@@ -49,17 +61,6 @@ pub struct IsRegisteredRequest{
     eth_addr: String,
 }
 
-#[derive(Deserialize)]
-pub struct RegisterRequest {
-    pub login: String,
-    pub eth_addr: String,
-}
-
-#[derive(Serialize)]
-pub struct Response {
-    pub code: u16,
-    pub message: String
-}
 
 #[derive(Serialize)]
 pub struct Eth2Id {
@@ -117,4 +118,4 @@ impl ResultData {
             file_part: None,
         }
     }
-}
+}*/
