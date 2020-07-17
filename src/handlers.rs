@@ -136,6 +136,7 @@ pub async fn handle_get_user_by_username(username: String, db: Database) -> Resu
 
 
 pub async fn deserialize_form_data(id: String, form_data: FormData) -> Result<ResultData, Rejection> {
+    print("In deserialize");
     let mut result_data = ResultData::new();
     let parts: Vec<PartType> = form_data
         .then(|part| async {
@@ -199,12 +200,12 @@ pub async fn deserialize_form_data(id: String, form_data: FormData) -> Result<Re
             PartType::NoFormData => (),
         };
     }
-
+    println!("result data: {?}", result_data);
     Ok(result_data)
 }
 
 pub async fn save_media_file(product: ResultData, db: Database) -> Result<impl warp::Reply, Infallible> {
-    print("IN SAVE MEDIA");
+    println!("IN SAVE MEDIA");
     let uuid = Uuid::new_v4().to_string();
     let extension = if product.media_type == "VIDEO" {
         String::from("mp4")
