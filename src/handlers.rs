@@ -136,7 +136,7 @@ pub async fn handle_get_user_by_username(username: String, db: Database) -> Resu
 
 
 pub async fn deserialize_form_data(id: String, form_data: FormData) -> Result<ResultData, Rejection> {
-    print("In deserialize");
+    println!("In deserialize");
     let mut result_data = ResultData::new();
     let parts: Vec<PartType> = form_data
         .then(|part| async {
