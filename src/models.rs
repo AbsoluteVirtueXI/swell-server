@@ -139,6 +139,7 @@ pub enum PartType {
     NoFormData,
 }
 
+
 pub struct ResultData {
     pub seller_id: i64,
     pub description: String,

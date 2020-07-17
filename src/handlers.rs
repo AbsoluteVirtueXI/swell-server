@@ -200,7 +200,7 @@ pub async fn deserialize_form_data(id: String, form_data: FormData) -> Result<Re
             PartType::NoFormData => (),
         };
     }
-    println!("result data: {?}", result_data);
+    println!("result data: {} {} {}", result_data.seller_id, result_data.price, result_data.description);
     Ok(result_data)
 }
 
