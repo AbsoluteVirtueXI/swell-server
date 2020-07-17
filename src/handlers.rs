@@ -204,6 +204,7 @@ pub async fn deserialize_form_data(id: String, form_data: FormData) -> Result<Re
 }
 
 pub async fn save_media_file(product: ResultData, db: Database) -> Result<impl warp::Reply, Infallible> {
+    print("IN SAVE MEDIA");
     let uuid = Uuid::new_v4().to_string();
     let extension = if product.media_type == "VIDEO" {
         String::from("mp4")
