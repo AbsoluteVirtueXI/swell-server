@@ -15,7 +15,7 @@ pub async fn create_thumbnail(video_path: String, thumbnail_path: String) -> Res
         .arg("-y")
         .spawn();
     let future = child.expect("failed to spawn");
-    let status = future.await?;
+    let status = future.await;
     //println!("status: {}", status );
     Ok(())
 
