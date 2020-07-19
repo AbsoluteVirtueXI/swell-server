@@ -28,6 +28,7 @@ pub fn rest_swell(db: Database) -> impl Filter<Extract = impl warp::Reply, Error
         .or(rest_get_my_profile(db.clone()))
         .or(rest_get_user_by_username(db.clone()))
         .or(rest_upload_product(db.clone()))
+        .or(rest_get_products_feed(db.clone()))
         .or(warp::path("files")
             .and(warp::get())
             .and(warp::fs::dir("files/")))
@@ -73,6 +74,13 @@ pub fn rest_upload_product(db: Database) -> impl Filter<Extract = impl warp::Rep
         .and_then(save_media_file)
 }
 
+pub fn rest_get_products_feed(db: Database) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+    warp::path!("get_products_feed")
+        .and(warp::get())
+        .and(warp::header::<String>("Authorization"))
+        .and(with_db(db))
+        .and_then(handle_get_products_feed)
+}
 
 /*
 pub fn rest_upload_item(db: Db) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
