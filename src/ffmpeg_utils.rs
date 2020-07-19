@@ -1,10 +1,12 @@
-use tokio::process::Command;
-use std::borrow::Borrow;
+use tokio::process::{Command};
+use std::process::Stdio;
 
 pub async fn create_thumbnail(video_path: String, thumbnail_path: String) -> Result<(), Box<dyn std::error::Error>> {
     //println!("IN create_thumbnail with: {}, {}", video_path, thumbnail_path);
     //let args = format!(" -i {} -ss 00:00:00 -vframes 1 {} -y", video_path, thumbnail_path);
     let child = Command::new("ffmpeg")
+        .stdout(Stdio::null())
+        .stderr(Stdio::null())
         .arg("-i")
         .arg(video_path)
         .arg("-ss")
