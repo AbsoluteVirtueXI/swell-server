@@ -57,6 +57,25 @@ pub struct Media {
 
 }
 
+#[derive(Debug, Deserialize, Serialize, Clone)]
+pub struct Feed {
+    //id of the product
+    pub id: i64,
+    //id of the user
+    pub seller_id: i64,
+    pub username: String,
+    pub avatar: String,
+    pub product_type: String,
+    pub description: String,
+    pub price: i64,
+    pub views: i64,
+    pub likes: i64,
+    pub path: String,
+    pub thumbnail_path: String,
+    pub media_type: String,
+    pub created_at: DateTime<Utc>,
+}
+
 /*
 CREATE TABLE medias(
 id BIGSERIAL PRIMARY KEY NOT NULL,

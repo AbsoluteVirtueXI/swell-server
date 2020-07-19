@@ -219,6 +219,38 @@ impl Database {
         "#, product_type, seller_id, description, price, sql_res.id).fetch_one(&self.pool).await.unwrap();
         Ok(true)
     }
+    /*
+    pub async fn db_get_all_videos(db: &Db) -> Vec<Video> {
+        sqlx::query_as!(Video, "SELECT * FROM videos").fetch_all(db).await.unwrap()
+    }*/
+
+    pub async fn db_get_products_feed(&self, id: i64) -> Result<Vec<Feed>, sqlx::Error> {
+        let sql_res = sqlx::query_as!(Feed,
+        r#"
+            SELECT products.id, products.seller_id, users.username, users.avatar, products.product_type, products.description,
+            products.price, products.views, products.likes, medias.path, medias.thumbnail_path, medias.media_type, medias.created_at
+            FROM products INNER JOIN users ON products.seller_id = users.id INNER JOIN medias ON products.media_id = medias.id
+            WHERE users.id != $1 AND products.buyers_id = 0
+        "#, id).fetch_all(&self.pool).await?;
+        Ok(sql_res)
+    }
+    /*
+pub struct Feed {
+    pub id: String,
+    pub seller_id: i64,
+    pub username: i64,
+    pub avatar: String,
+    pub product_type: String,
+    pub description: String,
+    pub price: i64,
+    pub views: i64,
+    pub likes: i64,
+    pub path: String,
+    pub thumbnail_path: String,
+    pub media_type: String,
+    pub created_at: DateTime<Utc>,
+}
+*/
 
 }
 
