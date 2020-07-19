@@ -226,7 +226,7 @@ pub async fn save_media_file(product: ResultData, db: Database) -> Result<impl w
                              product.product_type,
                              product.media_type,
                              file_path.clone(), thumbnail_path.clone()).await;
-    if extension == "VIDEO" {
+    if  !thumbnail_path.is_empty() {
         let status = create_thumbnail(file_path.clone(), thumbnail_path.clone()).await;
     }
 
