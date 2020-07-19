@@ -51,6 +51,7 @@ pub struct Product {
 pub struct Media {
     pub id: i64,
     pub path: String,
+    pub thumbnail_path: String,
     pub media_type: String,
     pub created_at: DateTime<Utc>,
 

@@ -3,3 +3,4 @@ pub mod filters;
 mod handlers;
 pub mod models;
 mod json_extractor;
+mod ffmpeg_utils;

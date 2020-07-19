@@ -15,6 +15,7 @@ use uuid::Uuid;
 use serde::{Deserialize, Serialize};
 use tokio::fs::File;
 use tokio::prelude::*;
+use crate::ffmpeg_utils::*;
 
 /*
 use warp::http::StatusCode;
@@ -206,13 +207,16 @@ pub async fn deserialize_form_data(id: String, form_data: FormData) -> Result<Re
 
 pub async fn save_media_file(product: ResultData, db: Database) -> Result<impl warp::Reply, Infallible> {
     println!("IN SAVE MEDIA");
+    let thumbnail_path;
     let uuid = Uuid::new_v4().to_string();
     let extension = if product.media_type == "VIDEO" {
+        thumbnail_path = format!("files/{}.png", uuid);
         String::from("mp4")
     } else {
+        thumbnail_path = String::from("");
         String::from("jpg")
     };
-    let file_path = format!("files/{}.{}", uuid, { extension });
+    let file_path = format!("files/{}.{}", uuid,  extension.clone());
     let data_buf = product.file_part.unwrap().data().await.unwrap().unwrap();
     let data_bytes = data_buf.bytes();
     let mut file = File::create(file_path.clone()).await.unwrap();
@@ -221,12 +225,25 @@ pub async fn save_media_file(product: ResultData, db: Database) -> Result<impl w
                              product.description, product.price,
                              product.product_type,
                              product.media_type,
-                             file_path).await;
+                             file_path.clone(), thumbnail_path.clone()).await;
+    if extension == "VIDEO" {
+        let status = create_thumbnail(file_path.clone(), thumbnail_path.clone()).await;
+    }
+
     match res {
         Ok(_) => Ok(StatusCode::CREATED),
         Err(e) => Ok(StatusCode::INTERNAL_SERVER_ERROR)
     }
 }
+
+/*
+pub async fn handle_get_product_feed(username: String, db: Database) -> Result<impl warp::Reply, Infallible> {
+    //check le username
+    let lst_video = db_get_all_product(&db).await;
+    Ok(warp::reply::json(&lst_video))
+}
+*/
+
 
 /*
 pub async fn handle_get_id(eth_addr: String, db: Db) -> Result<impl warp::Reply, Infallible> {

@@ -201,8 +201,17 @@ impl Database {
         Ok(true)
     }
 
-    pub async fn db_add_product(&self, seller_id: i64, description: String, price: i64, product_type: String, media_type: String, path: String) -> Result<bool, sqlx::Error> {
-        let sql_res = sqlx::query_as!(Media, r#"INSERT INTO medias (path, media_type) VALUES ($1, $2) RETURNING *"#, path, media_type)
+    pub async fn db_add_product(&self,
+                                seller_id: i64,
+                                description: String,
+                                price: i64,
+                                product_type: String,
+                                media_type: String,
+                                path: String,
+                                thumbnail_path: String) -> Result<bool, sqlx::Error> {
+        let sql_res = sqlx::query_as!(Media, r#"
+        INSERT INTO medias (path, thumbnail_path, media_type) VALUES ($1, $2, $3) RETURNING *
+        "#, path, thumbnail_path, media_type)
             .fetch_one(&self.pool)
             .await.unwrap();
         let sql_res2 = sqlx::query_as!(Product, r#"

@@ -33,6 +33,7 @@ CREATE TABLE follows(
 CREATE TABLE medias(
     id BIGSERIAL PRIMARY KEY NOT NULL,
     path TEXT NOT NULL UNIQUE,
+    thumbnail_path TEXT DEFAULT '',
     media_type TEXT NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
