@@ -28,6 +28,9 @@ pub fn rest_swell(db: Database) -> impl Filter<Extract = impl warp::Reply, Error
         .or(rest_get_my_profile(db.clone()))
         .or(rest_get_user_by_username(db.clone()))
         .or(rest_upload_product(db.clone()))
+        .or(warp::path("files")
+            .and(warp::get())
+            .and(warp::fs::dir("files/")))
 }
 
 pub fn rest_register(db: Database) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
