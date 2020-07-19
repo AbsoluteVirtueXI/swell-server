@@ -263,6 +263,32 @@ pub async fn handle_get_products_feed(id: String, db: Database) -> Result<impl w
 
 }
 
+pub async fn handle_get_my_products_feed(id: String, db: Database) -> Result<impl warp::Reply, Infallible> {
+    let code;
+    let data;
+    match id.parse::<i64>() {
+        Err(_) => {
+            code = 403;
+            data = String::from("Bad token format")
+        }
+        Ok(id) => {
+            let sql_res = db.db_get_my_products_feed(id).await;
+            match sql_res {
+                Ok(feeds) => {
+                    code = 200;
+                    data = serde_json::to_string(&feeds).unwrap();
+                }
+                Err(e) => {
+                    code = 403;
+                    data = format!("{}", e);
+                }
+            }
+        }
+    }
+    Ok(warp::reply::json(&Response { code, data }))
+
+}
+
 
 /*
 pub async fn handle_get_id(eth_addr: String, db: Db) -> Result<impl warp::Reply, Infallible> {

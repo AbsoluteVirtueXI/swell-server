@@ -234,6 +234,18 @@ impl Database {
         "#, id).fetch_all(&self.pool).await?;
         Ok(sql_res)
     }
+
+    pub async fn db_get_my_products_feed(&self, id: i64) -> Result<Vec<Feed>, sqlx::Error> {
+        let sql_res = sqlx::query_as!(Feed,
+        r#"
+            SELECT products.id, products.seller_id, users.username, users.avatar, products.product_type, products.description,
+            products.price, products.views, products.likes, medias.path, medias.thumbnail_path, medias.media_type, medias.created_at
+            FROM products INNER JOIN users ON products.seller_id = users.id INNER JOIN medias ON products.media_id = medias.id
+            WHERE users.id != $1 ORDER BY products.created_at DESC
+        "#, id).fetch_all(&self.pool).await?;
+        Ok(sql_res)
+    }
+
     /*
 pub struct Feed {
     pub id: String,
