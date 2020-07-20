@@ -77,6 +77,18 @@ pub struct Feed {
 }
 
 /*
+#[derive(Debug, Deserialize, Serialize, Clone)]
+pub struct Thread {
+    pub id: i64,
+    pub src_id: i64,
+    pub src_username: String,
+    pub src_avatar: String,
+}
+
+ */
+
+
+/*
 CREATE TABLE medias(
 id BIGSERIAL PRIMARY KEY NOT NULL,
 path TEXT NOT NULL,

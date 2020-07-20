@@ -4,7 +4,7 @@ use crate::database::*;
 use crate::handlers::*;
 use warp::{
     filters::multipart::{FormData, Part},
-    reject, Buf, Rejection,
+    reject, Buf, Rejection
 };
 
 
