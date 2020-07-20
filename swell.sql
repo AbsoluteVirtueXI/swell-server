@@ -1,3 +1,5 @@
+DROP TABLE messages cascade;
+DROP TABLE threads cascade;
 DROP TABLE products cascade;
 DROP TABLE medias cascade;
 DROP TABLE follows cascade;
@@ -50,3 +52,19 @@ CREATE TABLE products (
     likes BIGINT DEFAULT 0,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+
+CREATE TABLE threads (
+    id BIGSERIAL PRIMARY KEY NOT NULL,
+    src_id BIGINT NOT NULL REFERENCES users(id),
+    rcv_id BIGINT NOT NULL REFERENCES users(id),
+    UNIQUE (src_id, rcv_id)
+);
+
+CREATE TABLE messages (
+    id BIGSERIAL PRIMARY KEY NOT NULL,
+    thread_id BIGINT NOT NULL REFERENCES threads(id) ON DELETE CASCADE,
+    content TEXT NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
