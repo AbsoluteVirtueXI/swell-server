@@ -1,5 +1,6 @@
 DROP TABLE messages cascade;
-DROP TABLE threads cascade;
+--DROP TABLE thread_participant cascade ;
+--DROP TABLE threads cascade;
 DROP TABLE products cascade;
 DROP TABLE medias cascade;
 DROP TABLE follows cascade;
@@ -32,7 +33,7 @@ CREATE TABLE follows(
     PRIMARY KEY (followee_id, follower_id)
 );
 
-CREATE TABLE medias(
+CREATE TABLE medias (
     id BIGSERIAL PRIMARY KEY NOT NULL,
     path TEXT NOT NULL UNIQUE,
     thumbnail_path TEXT DEFAULT '',
@@ -53,18 +54,29 @@ CREATE TABLE products (
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-
+/*
 CREATE TABLE threads (
-    id BIGSERIAL PRIMARY KEY NOT NULL,
-    src_id BIGINT NOT NULL REFERENCES users(id),
-    rcv_id BIGINT NOT NULL REFERENCES users(id),
-    UNIQUE (src_id, rcv_id)
+    id BIGSERIAL PRIMARY KEY NOT NULL
 );
+
+CREATE TABLE thread_participant(
+    thread_id BIGINT NOT NULL REFERENCES threads(id) ON DELETE CASCADE,
+    user_id BIGINT NOT NULL REFERENCES threads(id) ON DELETE CASCADE
+);
+*/
+/*
+CREATE TABLE messages (
+    id BIGSERIAL PRIMARY KEY NOT NULL,
+    sender_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    content TEXT NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);*/
+
 
 CREATE TABLE messages (
     id BIGSERIAL PRIMARY KEY NOT NULL,
-    thread_id BIGINT NOT NULL REFERENCES threads(id) ON DELETE CASCADE,
+    sender BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    receiver BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     content TEXT NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
-

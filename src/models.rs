@@ -76,16 +76,26 @@ pub struct Feed {
     pub created_at: DateTime<Utc>,
 }
 
-/*
+
+#[derive(Debug, Deserialize, Serialize, Clone)]
+pub struct Message {
+    pub id: i64,
+    pub sender: i64,
+    pub receiver: i64,
+    pub content: String,
+    pub created_at: DateTime<Utc>
+}
+
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct Thread {
     pub id: i64,
-    pub src_id: i64,
-    pub src_username: String,
-    pub src_avatar: String,
+    pub username: String,
+    pub avatar: String,
+    pub content: String,
+    pub created_at: DateTime<Utc>
 }
 
- */
+
 
 
 /*

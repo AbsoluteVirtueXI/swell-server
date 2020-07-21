@@ -247,6 +247,22 @@ impl Database {
     }
 
     /*
+    pub thread_id: i64,
+    pub src_id: i64,
+    pub src_avatar: String,
+    pub src_username: String,
+    pub last_date: DateTime<Utc>,
+
+    select threads.id, threads.src_id , users.avatar, users.username, messages.created_at from threads
+    INNER JOIN users ON users.id = threads.src_id
+    INNER JOIN messages ON messages.thread_id = threads.id where messages.created_at
+    IN (select MAX(created_at) from messages) and threads.rcv_id = 1;
+     */
+    pub async fn db_get_all_threads(&self, user_id: i64) -> Result<Vec<ThreadResult>, sqlx::Error> {
+        let sql_res = sqlx::query_as!();
+    }
+
+    /*
 pub struct Feed {
     pub id: String,
     pub seller_id: i64,
