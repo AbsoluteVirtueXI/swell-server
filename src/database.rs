@@ -246,39 +246,39 @@ impl Database {
         Ok(sql_res)
     }
 
-    /*
-    pub thread_id: i64,
-    pub src_id: i64,
-    pub src_avatar: String,
-    pub src_username: String,
-    pub last_date: DateTime<Utc>,
-
-    select threads.id, threads.src_id , users.avatar, users.username, messages.created_at from threads
-    INNER JOIN users ON users.id = threads.src_id
-    INNER JOIN messages ON messages.thread_id = threads.id where messages.created_at
-    IN (select MAX(created_at) from messages) and threads.rcv_id = 1;
-     */
-    pub async fn db_get_all_threads(&self, user_id: i64) -> Result<Vec<ThreadResult>, sqlx::Error> {
-        let sql_res = sqlx::query_as!();
+    pub async fn db_add_message(&self, sender: i64, receiver: i64, content: String) -> Result<bool, sqlx::Error> {
+        let sql_res = sqlx::query!(
+            r#"INSERT INTO messages (sender, receiver, content) VALUES($1, $2, $3)"#,
+            sender, receiver, content
+        ).execute(&self.pool).await?;
+        Ok(true)
     }
 
-    /*
-pub struct Feed {
-    pub id: String,
-    pub seller_id: i64,
-    pub username: i64,
-    pub avatar: String,
-    pub product_type: String,
-    pub description: String,
-    pub price: i64,
-    pub views: i64,
-    pub likes: i64,
-    pub path: String,
-    pub thumbnail_path: String,
-    pub media_type: String,
-    pub created_at: DateTime<Utc>,
-}
-*/
 
+    pub async fn db_get_all_threads(&self, user_id: i64) -> Result<Vec<Thread>, sqlx::Error> {
+        let sql_res = sqlx::query_as!(Thread,
+            r#"
+                SELECT users.id, users.username, users.avatar, m.content, m.created_at
+                FROM messages m
+                INNER JOIN users ON users.id = CASE WHEN m.sender = $1 THEN m.receiver ELSE m.sender END
+                WHERE $1 IN (m.sender, m.receiver) AND
+                (LEAST(m.sender, m.receiver), GREATEST(m.sender, m.receiver), m.created_at) IN
+                (SELECT LEAST(m2.sender, m2.receiver), GREATEST(m2.sender, m2.receiver), MAX(m2.created_at)
+                FROM messages m2
+                GROUP BY LEAST(m2.sender, m2.receiver), GREATEST(m2.sender, m2.receiver)
+                ) ORDER BY m.created_at DESC
+            "#, user_id
+        ).fetch_all(&self.pool).await?;
+        Ok(sql_res)
+    }
+
+    pub async fn db_get_all_messages(&self, user1: i64, user2: i64) -> Result<Vec<Message>, sqlx::Error> {
+        let sql_res = sqlx::query_as!(Message,
+        r#"
+            select * from messages where sender = $1 or receiver = $1 AND sender = $2 or receiver = $2 ORDER BY created_at ASC
+        "#, user1, user2
+        ).fetch_all(&self.pool).await?;
+        Ok(sql_res)
+    }
 }
 
