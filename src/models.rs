@@ -25,6 +25,18 @@ pub struct RegisterInput {
     pub eth_address: String,
 }
 
+#[derive(Deserialize)]
+pub struct AllMessagesInput {
+    pub user1: i64,
+    pub user2: i64,
+}
+
+#[derive(Deserialize)]
+pub struct SendMessageInput {
+    pub receiver: i64,
+    pub content: String,
+}
+
 #[derive(Serialize)]
 pub struct Response {
     pub code: u16,

@@ -135,7 +135,6 @@ pub async fn handle_get_user_by_username(username: String, db: Database) -> Resu
 }
 
 
-
 pub async fn deserialize_form_data(id: String, form_data: FormData) -> Result<ResultData, Rejection> {
     println!("In deserialize");
     let mut result_data = ResultData::new();
@@ -148,24 +147,24 @@ pub async fn deserialize_form_data(id: String, form_data: FormData) -> Result<Re
                     let part_bytes = part.data().await.unwrap().unwrap();
                     let value = std::str::from_utf8(part_bytes.bytes()).unwrap().to_string();
                     PartType::Description(value)
-                },
+                }
                 "seller_id" => {
                     let part_bytes = part.data().await.unwrap().unwrap();
                     let value = std::str::from_utf8(part_bytes.bytes()).unwrap().to_string();
                     let value = value.parse::<i64>().unwrap();
                     PartType::SellerId(value)
-                },
+                }
                 "price" => {
                     let part_bytes = part.data().await.unwrap().unwrap();
                     let value = std::str::from_utf8(part_bytes.bytes()).unwrap().to_string();
                     let value = value.parse::<i64>().unwrap();
                     PartType::Price(value)
-                },
+                }
                 "media_type" => {
                     let part_bytes = part.data().await.unwrap().unwrap();
                     let value = std::str::from_utf8(part_bytes.bytes()).unwrap().to_string();
                     PartType::MediaType(value)
-                },
+                }
                 "product_type" => {
                     let part_bytes = part.data().await.unwrap().unwrap();
                     let value = std::str::from_utf8(part_bytes.bytes()).unwrap().to_string();
@@ -216,17 +215,17 @@ pub async fn save_media_file(product: ResultData, db: Database) -> Result<impl w
         thumbnail_path = String::from("");
         String::from("jpg")
     };
-    let file_path = format!("files/{}.{}", uuid,  extension.clone());
+    let file_path = format!("files/{}.{}", uuid, extension.clone());
     let data_buf = product.file_part.unwrap().data().await.unwrap().unwrap();
     let data_bytes = data_buf.bytes();
     let mut file = File::create(file_path.clone()).await.unwrap();
     file.write_all(data_bytes).await.unwrap();
     let res = db.db_add_product(product.seller_id,
-                             product.description, product.price,
-                             product.product_type,
-                             product.media_type,
-                             file_path.clone(), thumbnail_path.clone()).await;
-    if  !thumbnail_path.is_empty() {
+                                product.description, product.price,
+                                product.product_type,
+                                product.media_type,
+                                file_path.clone(), thumbnail_path.clone()).await;
+    if !thumbnail_path.is_empty() {
         let status = create_thumbnail(file_path.clone(), thumbnail_path.clone()).await;
     }
 
@@ -260,7 +259,6 @@ pub async fn handle_get_products_feed(id: String, db: Database) -> Result<impl w
         }
     }
     Ok(warp::reply::json(&Response { code, data }))
-
 }
 
 pub async fn handle_get_my_products_feed(id: String, db: Database) -> Result<impl warp::Reply, Infallible> {
@@ -286,9 +284,88 @@ pub async fn handle_get_my_products_feed(id: String, db: Database) -> Result<imp
         }
     }
     Ok(warp::reply::json(&Response { code, data }))
-
 }
 
+pub async fn handle_get_my_threads(id: String, db: Database) -> Result<impl warp::Reply, Infallible> {
+    let code;
+    let data;
+    match id.parse::<i64>() {
+        Err(_) => {
+            code = 403;
+            data = String::from("Bad token format")
+        }
+        Ok(id) => {
+            let sql_res = db.db_get_all_threads(id).await;
+            match sql_res {
+                Ok(threads) => {
+                    code = 200;
+                    data = serde_json::to_string(&threads).unwrap();
+                }
+                Err(e) => {
+                    code = 403;
+                    data = format!("{}", e);
+                }
+            }
+        }
+    }
+    Ok(warp::reply::json(&Response { code, data }))
+}
+
+pub async fn handle_get_all_messages(id: String, input: AllMessagesInput, db: Database) -> Result<impl warp::Reply, Infallible> {
+    let code;
+    let data;
+    match id.parse::<i64>() {
+        Err(_) => {
+            code = 403;
+            data = String::from("Bad token format")
+        }
+        Ok(id) => {
+            if id != input.user1 && id != input.user2 {
+                code = 401;
+                data = String::from("Unauthorized")
+            } else {
+                let sql_res = db.db_get_all_messages(input).await;
+                match sql_res {
+                    Ok(messages) => {
+                        code = 200;
+                        data = serde_json::to_string(&messages).unwrap();
+                    }
+                    Err(e) => {
+                        code = 403;
+                        data = format!("{}", e);
+                    }
+                }
+            }
+        }
+    }
+    Ok(warp::reply::json(&Response { code, data }))
+}
+
+pub async fn handle_send_message(id: String, input: SendMessageInput, db: Database) -> Result<impl warp::Reply, Infallible> {
+    let code;
+    let data;
+    match id.parse::<i64>() {
+        Err(_) => {
+            code = 403;
+            data = String::from("Bad token format")
+        }
+        Ok(id) => {
+            let sql_res = db.db_add_message(id,input).await;
+            match sql_res {
+                Ok(res) => {
+                    code = 200;
+                    data = serde_json::to_string(&res).unwrap();
+                }
+                Err(e) => {
+                    code = 403;
+                    data = format!("{}", e);
+                }
+            }
+        }
+    }
+
+    Ok(warp::reply::json(&Response { code, data }))
+}
 
 /*
 pub async fn handle_get_id(eth_addr: String, db: Db) -> Result<impl warp::Reply, Infallible> {

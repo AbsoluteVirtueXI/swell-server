@@ -30,6 +30,9 @@ pub fn rest_swell(db: Database) -> impl Filter<Extract = impl warp::Reply, Error
         .or(rest_upload_product(db.clone()))
         .or(rest_get_products_feed(db.clone()))
         .or(rest_get_my_products_feed(db.clone()))
+        .or(rest_get_all_messages(db.clone()))
+        .or(rest_get_my_threads(db.clone()))
+        .or(rest_send_message(db.clone()))
         .or(warp::path("files")
             .and(warp::get())
             .and(warp::fs::dir("files/")))
@@ -91,6 +94,31 @@ pub fn rest_get_my_products_feed(db: Database) -> impl Filter<Extract = impl war
         .and_then(handle_get_my_products_feed)
 }
 
+pub fn rest_get_all_messages(db: Database) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+    warp::path!("get_all_messages")
+        .and(warp::post())
+        .and(warp::header::<String>("Authorization"))
+        .and(json_body_all_messages())
+        .and(with_db(db))
+        .and_then(handle_get_all_messages)
+}
+
+pub fn rest_send_message(db: Database) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+    warp::path!("send_message")
+        .and(warp::post())
+        .and(warp::header::<String>("Authorization"))
+        .and(json_body_send_messages())
+        .and(with_db(db))
+        .and_then(handle_send_message)
+}
+
+pub fn rest_get_my_threads(db: Database) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+    warp::path!("get_my_threads")
+        .and(warp::post())
+        .and(warp::header::<String>("Authorization"))
+        .and(with_db(db))
+        .and_then(handle_get_my_threads)
+}
 
 /*
 pub fn rest_upload_item(db: Db) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {

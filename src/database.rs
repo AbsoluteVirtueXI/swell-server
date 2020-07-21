@@ -246,10 +246,10 @@ impl Database {
         Ok(sql_res)
     }
 
-    pub async fn db_add_message(&self, sender: i64, receiver: i64, content: String) -> Result<bool, sqlx::Error> {
+    pub async fn db_add_message(&self, user_id: i64, input: SendMessageInput) -> Result<bool, sqlx::Error> {
         let sql_res = sqlx::query!(
             r#"INSERT INTO messages (sender, receiver, content) VALUES($1, $2, $3)"#,
-            sender, receiver, content
+            user_id, input.receiver, input.content
         ).execute(&self.pool).await?;
         Ok(true)
     }
@@ -272,11 +272,11 @@ impl Database {
         Ok(sql_res)
     }
 
-    pub async fn db_get_all_messages(&self, user1: i64, user2: i64) -> Result<Vec<Message>, sqlx::Error> {
+    pub async fn db_get_all_messages(&self, input: AllMessagesInput) -> Result<Vec<Message>, sqlx::Error> {
         let sql_res = sqlx::query_as!(Message,
         r#"
-            select * from messages where sender = $1 or receiver = $1 AND sender = $2 or receiver = $2 ORDER BY created_at ASC
-        "#, user1, user2
+            SELECT * FROM messages WHERE sender = $1 AND receiver = $2 OR sender = $2 AND receiver = $1 ORDER BY created_at ASC
+        "#, input.user1, input.user2
         ).fetch_all(&self.pool).await?;
         Ok(sql_res)
     }
