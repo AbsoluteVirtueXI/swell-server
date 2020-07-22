@@ -114,7 +114,7 @@ pub fn rest_send_message(db: Database) -> impl Filter<Extract = impl warp::Reply
 
 pub fn rest_get_my_threads(db: Database) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
     warp::path!("get_my_threads")
-        .and(warp::post())
+        .and(warp::get())
         .and(warp::header::<String>("Authorization"))
         .and(with_db(db))
         .and_then(handle_get_my_threads)
