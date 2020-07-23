@@ -69,6 +69,7 @@ pub fn rest_get_user_by_username(db: Database) -> impl Filter<Extract = impl war
 }
 
 pub fn rest_upload_product(db: Database) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+    println!("IN rest_upload_product");
     warp::path!("upload_product")
         .and(warp::post())
         .and(warp::header::<String>("Authorization"))
@@ -103,7 +104,8 @@ pub fn rest_get_all_messages(db: Database) -> impl Filter<Extract = impl warp::R
         .and_then(handle_get_all_messages)
 }
 
-pub fn rest_send_message(db: Database) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+pub fn rest_send_message(db: Database) -> impl
+Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
     warp::path!("send_message")
         .and(warp::post())
         .and(warp::header::<String>("Authorization"))
