@@ -69,12 +69,11 @@ pub fn rest_get_user_by_username(db: Database) -> impl Filter<Extract = impl war
 }
 
 pub fn rest_upload_product(db: Database) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
-    println!("IN rest_upload_product");
     warp::path!("upload_product")
         .and(warp::post())
         .and(warp::header::<String>("Authorization"))
         .and(warp::body::content_length_limit(1024 * 2000000))
-        .and(warp::multipart::form())
+        .and(warp::multipart::form().max_length(1024 * 2000000))
         .and_then(deserialize_form_data)
         .and(with_db(db))
         .and_then(save_media_file)
