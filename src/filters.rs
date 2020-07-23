@@ -73,6 +73,7 @@ pub fn rest_upload_product(db: Database) -> impl Filter<Extract = impl warp::Rep
     warp::path!("upload_product")
         .and(warp::post())
         .and(warp::header::<String>("Authorization"))
+        .and(warp::body::content_length_limit(1024 * 2000000))
         .and(warp::multipart::form())
         .and_then(deserialize_form_data)
         .and(with_db(db))
