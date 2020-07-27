@@ -76,7 +76,7 @@ pub async fn handle_get_user_by_id(id: i64, db: Database) -> Result<impl warp::R
     Ok(warp::reply::json(&Response { code, data }))
 }
 
-pub async fn handle_get_users_by_pattern(pattern: String, id: String, db: Database) -> Result<impl warp::Reply, Infallible> {
+pub async fn handle_get_users_by_pattern(id: String, pattern: Pattern, db: Database) -> Result<impl warp::Reply, Infallible> {
     let code;
     let data;
 

@@ -139,12 +139,12 @@ impl Database {
         Database::_handle_optional_result(sql_res)
     }
 
-    pub async fn get_users_by_pattern(&self, id: i64, mut pattern: String) -> Result<Vec<User>, sqlx::Error> {
-        pattern.push_str("%");
+    pub async fn get_users_by_pattern(&self, id: i64, mut pattern: Pattern) -> Result<Vec<User>, sqlx::Error> {
+        pattern.pattern.push_str("%");
         let sql_res = sqlx::query_as!(
             User,
             r#"SELECT * from users WHERE username ILIKE $1 AND id != $2 ORDER BY username"#,
-            pattern,
+            pattern.pattern,
             id,
         ).fetch_all(&self.pool).await?;
         Ok(sql_res)

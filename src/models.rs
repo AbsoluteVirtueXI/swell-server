@@ -37,6 +37,11 @@ pub struct SendMessageInput {
     pub content: String,
 }
 
+#[derive(Deserialize)]
+pub struct Pattern {
+    pub pattern: String,
+}
+
 #[derive(Serialize)]
 pub struct Response {
     pub code: u16,
