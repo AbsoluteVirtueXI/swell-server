@@ -19,6 +19,18 @@ pub struct User {
     pub created_at: DateTime<Utc>,
 }
 
+#[derive(Debug, Deserialize, Serialize, Clone)]
+pub struct UserProfile {
+    pub id: i64,
+    pub username: String,
+    pub eth_address: String,
+    pub bio: String,
+    pub quadreum: i64,
+    pub avatar: String,
+    pub followers: i64,
+    pub followees: i64,
+}
+
 #[derive(Deserialize)]
 pub struct RegisterInput {
     pub username: String,

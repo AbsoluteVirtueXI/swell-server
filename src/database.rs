@@ -127,7 +127,7 @@ impl Database {
             .await;
         Database::_handle_optional_result(sql_res)
     }
-
+    
     pub async fn get_user_by_username(&self, username: String) -> Result<Option<User>, sqlx::Error> {
         let sql_res = sqlx::query_as!(
             User,

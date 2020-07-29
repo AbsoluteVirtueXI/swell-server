@@ -76,6 +76,85 @@ pub async fn handle_get_user_by_id(id: i64, db: Database) -> Result<impl warp::R
     Ok(warp::reply::json(&Response { code, data }))
 }
 
+pub async fn handle_get_followers(user_id: i64, id: String, db: Database) -> Result<impl warp::Reply, Infallible> {
+    let code;
+    let data;
+
+    match id.parse::<i64>() {
+        Err(_) => {
+            code = 403;
+            data = String::from("Bad token format")
+        }
+        Ok(id) => {
+            let sql_res = db.get_followers(user_id).await;
+            match sql_res {
+                Ok(users) => {
+                    code = 200;
+                    data = serde_json::to_string(&users).unwrap();
+                }
+                Err(e) => {
+                    code = 403;
+                    data = format!("{}", e);
+                }
+            }
+        }
+    }
+    Ok(warp::reply::json(&Response { code, data }))
+}
+
+pub async fn handle_get_followees(user_id: i64, id: String, db: Database) -> Result<impl warp::Reply, Infallible> {
+    let code;
+    let data;
+
+    match id.parse::<i64>() {
+        Err(_) => {
+            code = 403;
+            data = String::from("Bad token format")
+        }
+        Ok(id) => {
+            let sql_res = db.get_followees(user_id).await;
+            match sql_res {
+                Ok(users) => {
+                    code = 200;
+                    data = serde_json::to_string(&users).unwrap();
+                }
+                Err(e) => {
+                    code = 403;
+                    data = format!("{}", e);
+                }
+            }
+        }
+    }
+    Ok(warp::reply::json(&Response { code, data }))
+}
+
+pub async fn handle_follow(user_id: i64, id: String, db: Database) -> Result<impl warp::Reply, Infallible> {
+    match id.parse::<i64>() {
+        Err(e) => Ok(StatusCode::INTERNAL_SERVER_ERROR),
+        Ok(id) => {
+            let res = db.follow(user_id, id).await;
+            match res {
+                Ok(_) => Ok(StatusCode::CREATED),
+                Err(_) => Ok(StatusCode::INTERNAL_SERVER_ERROR),
+            }
+        }
+    }
+}
+
+pub async fn handle_unfollow(user_id: i64, id: String, db: Database) -> Result<impl warp::Reply, Infallible> {
+    match id.parse::<i64>() {
+        Err(e) => Ok(StatusCode::INTERNAL_SERVER_ERROR),
+        Ok(id) => {
+            let res = db.unfollow(user_id, id).await;
+            match res {
+                Ok(_) => Ok(StatusCode::CREATED),
+                Err(_) => Ok(StatusCode::INTERNAL_SERVER_ERROR),
+            }
+        }
+    }
+}
+
+
 pub async fn handle_get_users_by_pattern(id: String, pattern: Pattern, db: Database) -> Result<impl warp::Reply, Infallible> {
     let code;
     let data;
@@ -135,6 +214,8 @@ pub async fn handle_get_my_profile(id: String, db: Database) -> Result<impl warp
     }
     Ok(warp::reply::json(&Response { code, data }))
 }
+
+
 
 pub async fn handle_get_user_by_username(username: String, db: Database) -> Result<impl warp::Reply, Infallible> {
     let sql_res = db.get_user_by_username(username).await;
