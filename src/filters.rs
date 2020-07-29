@@ -30,6 +30,7 @@ pub fn rest_swell(db: Database) -> impl Filter<Extract = impl warp::Reply, Error
         .or(rest_upload_product(db.clone()))
         .or(rest_get_products_feed(db.clone()))
         .or(rest_get_my_products_feed(db.clone()))
+        .or(rest_get_products_feed_by_user(db.clone()))
         .or(rest_get_all_messages(db.clone()))
         .or(rest_get_my_threads(db.clone()))
         .or(rest_send_message(db.clone()))
@@ -139,6 +140,14 @@ pub fn rest_get_my_products_feed(db: Database) -> impl Filter<Extract = impl war
         .and(warp::header::<String>("Authorization"))
         .and(with_db(db))
         .and_then(handle_get_my_products_feed)
+}
+
+pub fn rest_get_products_feed_by_user(db: Database) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+    warp::path!("get_products_feed_by_user" / i64)
+        .and(warp::get())
+        .and(warp::header::<String>("Authorization"))
+        .and(with_db(db))
+        .and_then(handle_get_products_feed_by_user)
 }
 
 pub fn rest_get_all_messages(db: Database) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
