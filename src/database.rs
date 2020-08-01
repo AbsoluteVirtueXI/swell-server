@@ -291,5 +291,12 @@ impl Database {
         ).fetch_all(&self.pool).await?;
         Ok(sql_res)
     }
+
+    pub async fn db_update_profile(&self, id: i64, bio: String, path: String) -> Result<bool, sqlx::Error>{
+        let sql_res = sqlx::query!(
+            r#"UPDATE users SET bio = $1, avatar = $2 WHERE id = $3"#, bio, path, id
+        ).execute(&self.pool).await?;
+        Ok(true)
+    }
 }
 

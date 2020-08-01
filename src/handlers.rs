@@ -343,6 +343,72 @@ pub async fn save_media_file(product: ResultData, db: Database) -> Result<impl w
     }
 }
 
+pub async fn deserialize_form_profile(id: String, form_data: FormData) -> Result<ProfileData, Rejection> {
+    println!("In deserialize");
+    let mut result_data = ProfileData::new();
+    let parts: Vec<ProfilePartType> = form_data
+        .then(|part| async {
+            let mut part = part.unwrap();
+            match part.name() {
+                "avatar" => ProfilePartType::FilePart(part),
+                "bio" => {
+                    let part_bytes = part.data().await.unwrap().unwrap();
+                    let value = std::str::from_utf8(part_bytes.bytes()).unwrap().to_string();
+                    let value = if value.is_empty() {
+                        String::from("Hello, i am new on Squarrin")
+                    } else {
+                        value
+                    };
+                    ProfilePartType::Bio(value)
+                }
+                "id" => {
+                    let part_bytes = part.data().await.unwrap().unwrap();
+                    let value = std::str::from_utf8(part_bytes.bytes()).unwrap().to_string();
+                    let value = value.parse::<i64>().unwrap();
+                    ProfilePartType::Id(value)
+                }
+                _ => ProfilePartType::NoFormData,
+            }
+        })
+        .collect::<Vec<ProfilePartType>>()
+        .await;
+
+    for part in parts {
+        match part {
+            ProfilePartType::FilePart(file_part) => {
+                result_data.file_part = Some(file_part);
+            }
+
+            ProfilePartType::Bio(bio) => {
+                result_data.bio = bio;
+            }
+            ProfilePartType::Id(id) => {
+                result_data.id = id;
+            }
+            ProfilePartType::NoFormData => (),
+        };
+    }
+    println!("result data: {} {}", result_data.id, result_data.bio);
+    Ok(result_data)
+}
+
+pub async fn save_profile(profile: ProfileData, db: Database) -> Result<impl warp::Reply, Infallible> {
+    println!("IN SAVE Profile");
+    let uuid = Uuid::new_v4().to_string();
+    let file_path = format!("files/{}.jpg", uuid);
+    let data_buf = profile.file_part.unwrap().data().await.unwrap().unwrap();
+    let data_bytes = data_buf.bytes();
+    let mut file = File::create(file_path.clone()).await.unwrap();
+    file.write_all(data_bytes).await.unwrap();
+    let res = db.db_update_profile(profile.id,
+                                profile.bio,
+                                file_path.clone()).await;
+
+    match res {
+        Ok(_) => Ok(StatusCode::OK),
+        Err(e) => Ok(StatusCode::INTERNAL_SERVER_ERROR)
+    }
+}
 
 pub async fn handle_get_products_feed(id: String, db: Database) -> Result<impl warp::Reply, Infallible> {
     let code;

@@ -39,6 +39,7 @@ pub fn rest_swell(db: Database) -> impl Filter<Extract = impl warp::Reply, Error
         .or(rest_get_followees(db.clone()))
         .or(rest_follow(db.clone()))
         .or(rest_unfollow(db.clone()))
+        .or(rest_upload_profile(db.clone()))
         .or(warp::path("files")
             .and(warp::get())
             .and(warp::fs::dir("files/")))
@@ -175,6 +176,17 @@ pub fn rest_get_my_threads(db: Database) -> impl Filter<Extract = impl warp::Rep
         .and(warp::header::<String>("Authorization"))
         .and(with_db(db))
         .and_then(handle_get_my_threads)
+}
+
+pub fn rest_upload_profile(db: Database) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+    warp::path!("upload_profile")
+        .and(warp::post())
+        .and(warp::header::<String>("Authorization"))
+        .and(warp::body::content_length_limit(1024 * 2000000))
+        .and(warp::multipart::form().max_length(1024 * 2000000))
+        .and_then(deserialize_form_profile)
+        .and(with_db(db))
+        .and_then(save_profile)
 }
 
 /*

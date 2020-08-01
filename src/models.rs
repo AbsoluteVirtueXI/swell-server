@@ -210,6 +210,12 @@ pub enum PartType {
     NoFormData,
 }
 
+pub enum ProfilePartType {
+    Id(i64),
+    Bio(String),
+    FilePart(Part),
+    NoFormData
+}
 
 pub struct ResultData {
     pub seller_id: i64,
@@ -229,6 +235,22 @@ impl ResultData {
             price: 0,
             file_part: None,
             media_type: "".to_string(),
+        }
+    }
+}
+
+pub struct ProfileData {
+    pub id: i64,
+    pub bio: String,
+    pub file_part: Option<Part>,
+}
+
+impl ProfileData {
+    pub fn new() -> Self {
+        ProfileData {
+            id: 0,
+            bio: "".to_string(),
+            file_part: None,
         }
     }
 }
