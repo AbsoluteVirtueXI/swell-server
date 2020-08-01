@@ -394,6 +394,7 @@ pub async fn deserialize_form_profile(id: String, form_data: FormData) -> Result
 
 pub async fn save_profile(profile: ProfileData, db: Database) -> Result<impl warp::Reply, Infallible> {
     println!("IN SAVE Profile");
+    println!("{}", profile.bio);
     let uuid = Uuid::new_v4().to_string();
     let file_path = format!("files/{}.jpg", uuid);
     let data_buf = profile.file_part.unwrap().data().await.unwrap().unwrap();
