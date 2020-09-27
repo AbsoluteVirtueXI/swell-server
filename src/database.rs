@@ -315,11 +315,13 @@ impl Database {
         )
             .fetch_one(&self.pool)
             .await?;
-        println!("{:?}", buyer);
 
         let mut products_list: Vec<Product> = Vec::new();
         for product_id in buy_products.products {
             products_list.push(self.db_get_product_by_id(product_id).await?)
+        }
+        for elem in products_list {
+            println!("{:?}", elem)
         }
         let mut price = 0i64;
         for product in &products_list {
