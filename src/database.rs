@@ -328,10 +328,10 @@ impl Database {
         if buyer.quadreum < price {
             return Ok(false)
         }
-        buyer.quadreum -= price;
+        buyer.quadreum -=  price;
         //set buyer new quadreum amount
         sqlx::query!(
-            r#"UPDATE users SET quadreum = quadreum - $1 WHERE id = $2"#, buyer.quadreum, id
+            r#"UPDATE users SET quadreum = $1 WHERE id = $2"#, buyer.quadreum, id
         ).execute(&self.pool).await?;
         for product in &products_list {
             // set seller new quadreum amount
