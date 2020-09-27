@@ -315,6 +315,7 @@ impl Database {
         )
             .fetch_one(&self.pool)
             .await?;
+        println!("{:?}", buyer);
 
         let mut products_list: Vec<Product> = Vec::new();
         for product_id in buy_products.products {
