@@ -307,7 +307,15 @@ impl Database {
     }
 
     pub async fn db_buy_products(&self, id: i64, buy_products: BuyProducts) -> Result<bool, sqlx::Error> {
-        let mut buyer =  self.get_user_by_id(id).await??;
+
+        let mut buyer = sqlx::query_as!(
+            User,
+            r#"SELECT * FROM users where id = $1"#,
+            id
+        )
+            .fetch_one(&self.pool)
+            .await?;
+
         let mut products_list: Vec<Product> = Vec::new();
         for product_id in buy_products.products {
             products_list.push(self.db_get_product_by_id(product_id).await?)
