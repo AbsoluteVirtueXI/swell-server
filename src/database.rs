@@ -307,6 +307,22 @@ impl Database {
     }
 
     pub async fn db_buy_products(&self, id: i64, buy_products: BuyProducts) -> Result<bool, sqlx::Error> {
+        let rnd_hex_string = "0307a5a1729ac61583c3eefc23ce7fb6
+        d6995fe67e41a5e59c1030336c2067b0
+        7b9c0b09f66b8b72051bb02a8a928070
+        6f34159f40f5931b6922e1d8c8389808
+        81e74c639c1edaac8b288e4be9e51fe3
+        555d7020d503fa62e009698515220c0f
+        031a9c5f9efbbb0a57836a34f540eb2a
+        20c0d95f2a935e98df478f694d7f0d41
+        95b7a4f2b1882a4997ae596bc5cd344f
+        970656abbbe33f8dbc4fc0ce96a592bb
+        077e898a20996e84fea8f2fb2af20d61
+        d8670eafa34d5fc2b175a50ad004a3d2
+        edee9beb04d1ecc90ad4323b376230e8
+        1028294f3e10f1d92c124cc5ec0547e1
+        f2e75b34a98aef2f5e97b2fa8f8a4342
+        5bd180424362a5aea0d55c937050b617";
 
         let mut buyer = sqlx::query_as!(
             User,
@@ -334,6 +350,13 @@ impl Database {
             r#"UPDATE users SET quadreum = $1 WHERE id = $2"#, buyer.quadreum, id
         ).execute(&self.pool).await?;
         for product in &products_list {
+            //Get ethereum address of the seller
+            let mut seller = sqlx::query_as!(
+            User,
+            r#"SELECT * FROM users where id = $1"#,
+            product.seller_id
+        ).fetch_one(&self.pool).await?;
+            println!("Transaction: {} => {}\n ethereum.Quadreum: ERC777\nABI:{}, ", buyer.eth_address, seller.eth_address, rnd_hex_string);
             // set seller new quadreum amount
             sqlx::query!(
             r#"UPDATE users SET quadreum = quadreum + $1 WHERE id = $2"#, product.price, product.seller_id
