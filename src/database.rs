@@ -235,6 +235,13 @@ impl Database {
         sqlx::query_as!(Video, "SELECT * FROM videos").fetch_all(db).await.unwrap()
     }*/
 
+    pub async fn db_get_product_by_id(&self, id: i64) -> Result<Product, sqlx::Error> {
+        let sql_res = sqlx::query_as!(Product,
+        r#"SELECT * from products WHERE id = $1"#, id
+        ).fetch_one(&self.pool).await;
+        sql_res
+    }
+
     pub async fn db_get_products_feed(&self, id: i64) -> Result<Vec<Feed>, sqlx::Error> {
         let sql_res = sqlx::query_as!(Feed,
         r#"
@@ -296,6 +303,37 @@ impl Database {
         let sql_res = sqlx::query!(
             r#"UPDATE users SET bio = $1, avatar = $2 WHERE id = $3"#, bio, path, id
         ).execute(&self.pool).await?;
+        Ok(true)
+    }
+
+    pub async fn db_buy_products(&self, id: i64, buy_products: BuyProducts) -> Result<bool, sqlx::Error> {
+        let mut buyer =  self.get_user_by_id(id).await??;
+        let mut products_list: Vec<Product> = Vec::new();
+        for product_id in buy_products.products {
+            products_list.push(self.db_get_product_by_id(product_id).await?)
+        }
+        let mut price = 0i64;
+        for product in &products_list {
+            price += product.price;
+        }
+        if buyer.quadreum < price {
+            return Ok(false)
+        }
+        buyer.quadreum -= price;
+        //set buyer new quadreum amount
+        sqlx::query!(
+            r#"UPDATE users SET quadreum = quadreum - $1 WHERE id = $2"#, buyer.quadreum, id
+        ).execute(&self.pool).await?;
+        for product in &products_list {
+            // set seller new quadreum amount
+            sqlx::query!(
+            r#"UPDATE users SET quadreum = quadreum + $1 WHERE id = $2"#, product.price, product.seller_id
+        ).execute(&self.pool).await?;
+            // udate buyers id in producte
+            sqlx::query!(
+            r#"UPDATE products SET buyers_id = $1"#, id
+            ).execute(&self.pool).await?;
+        }
         Ok(true)
     }
 }

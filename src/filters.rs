@@ -40,6 +40,8 @@ pub fn rest_swell(db: Database) -> impl Filter<Extract = impl warp::Reply, Error
         .or(rest_follow(db.clone()))
         .or(rest_unfollow(db.clone()))
         .or(rest_upload_profile(db.clone()))
+        .or(rest_buy_products(db.clone()))
+        //.or(rest_send_quadreum(db.clone()))
         .or(warp::path("files")
             .and(warp::get())
             .and(warp::fs::dir("files/")))
@@ -188,6 +190,21 @@ pub fn rest_upload_profile(db: Database) -> impl Filter<Extract = impl warp::Rep
         .and(with_db(db))
         .and_then(save_profile)
 }
+
+pub fn rest_buy_products(db: Database) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+    warp::path!("buy_products")
+        .and(warp::post())
+        .and(warp::header::<String>("Authorization"))
+        .and(json_body_buy_products())
+        .and(with_db(db))
+        .and_then(handle_buy_products)
+}
+
+/*
+pub fn rest_send_quadreum(db: Database) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+    warp::path!("send_quadreum")
+        .and(warp::)
+}*/
 
 /*
 pub fn rest_upload_item(db: Db) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {

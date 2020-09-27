@@ -87,6 +87,11 @@ pub struct Media {
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
+pub struct BuyProducts {
+    pub products: Vec<i64>
+}
+
+#[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct Feed {
     //id of the product
     pub id: i64,

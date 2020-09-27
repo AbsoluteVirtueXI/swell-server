@@ -567,6 +567,32 @@ pub async fn handle_send_message(id: String, input: SendMessageInput, db: Databa
     Ok(warp::reply::json(&Response { code, data }))
 }
 
+pub async fn handle_buy_products(id: String, buy_products: BuyProducts, db: Database) -> Result<impl warp::Reply, Infallible> {
+    let code;
+    let data;
+    match id.parse::<i64>() {
+        Err(_) => {
+            code = 403;
+            data = String::from("Bad token format")
+        }
+        Ok(id) => {
+            let sql_res = db.db_buy_products(id,buy_products).await;
+            match sql_res {
+                Ok(res) => {
+                    code = 200;
+                    data = serde_json::to_string(&res).unwrap();
+                }
+                Err(e) => {
+                    code = 403;
+                    data = format!("{}", e);
+                }
+            }
+        }
+    }
+
+    Ok(warp::reply::json(&Response { code, data }))
+}
+
 /*
 pub async fn handle_get_id(eth_addr: String, db: Db) -> Result<impl warp::Reply, Infallible> {
     let id = db_get_id(eth_addr, &db).await;
