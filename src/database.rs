@@ -320,7 +320,7 @@ impl Database {
         for product_id in buy_products.products {
             products_list.push(self.db_get_product_by_id(product_id).await?)
         }
-        for elem in products_list {
+        for elem in &products_list {
             println!("{:?}", elem)
         }
         let mut price = 0i64;
