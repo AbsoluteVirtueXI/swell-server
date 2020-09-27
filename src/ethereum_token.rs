@@ -68,8 +68,8 @@ mod tests {
 
     #[test]
     fn test_from_sender_and_nonce() {
-        let sender = Address::from_str("0f572e5295c57f15886f9b263e2f6d2d6c7b5ec6").unwrap();
-        let expected = Address::from_str("3f09c73a5ed19289fb9bdc72f1742566df146f56").unwrap();
+        let sender = Address::from_str("0x0f572e5295c57f15886f9b263e2f6d2d6c7b5ec6").unwrap();
+        let expected = Address::from_str("0x3f09c73a5ed19289fb9bdc72f1742566df146f56").unwrap();
 
         let actual = ContractAddress::from_sender_and_nonce(&sender, &U256::from(88));
 
@@ -79,8 +79,8 @@ mod tests {
     #[test]
     fn test_from_sender_salt_and_code_hash() {
         let sender = Address::zero();
-        let code_hash = H256::from_str("c5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470").unwrap();
-        let expected_address = Address::from_str("e33c0c7f7df4809055c3eba6c09cfe4baf1bd9e0").unwrap();
+        let code_hash = H256::from_str("0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470").unwrap();
+        let expected_address = Address::from_str("0xe33c0c7f7df4809055c3eba6c09cfe4baf1bd9e0").unwrap();
 
         let contract_address = ContractAddress::from_sender_salt_and_code(&sender, H256::zero(), code_hash);
 
@@ -89,9 +89,9 @@ mod tests {
 
     #[test]
     fn test_from_sender_and_code_hash() {
-        let sender = Address::from_str("0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d").unwrap();
-        let code_hash = H256::from_str("d98f2e8134922f73748703c8e7084d42f13d2fa1439936ef5a3abcf5646fe83f").unwrap();
-        let expected_address = Address::from_str("064417880f5680b141ed7fcac031aad40df080b0").unwrap();
+        let sender = Address::from_str("0x0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d").unwrap();
+        let code_hash = H256::from_str("0xd98f2e8134922f73748703c8e7084d42f13d2fa1439936ef5a3abcf5646fe83f").unwrap();
+        let expected_address = Address::from_str("0x064417880f5680b141ed7fcac031aad40df080b0").unwrap();
 
         let contract_address = ContractAddress::from_sender_and_code(&sender, code_hash);
 
