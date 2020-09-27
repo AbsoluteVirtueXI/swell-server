@@ -320,9 +320,7 @@ impl Database {
         for product_id in buy_products.products {
             products_list.push(self.db_get_product_by_id(product_id).await?)
         }
-        for elem in &products_list {
-            println!("{:?}", elem)
-        }
+
         let mut price = 0i64;
         for product in &products_list {
             price += product.price;
@@ -342,7 +340,7 @@ impl Database {
         ).execute(&self.pool).await?;
             // udate buyers id in producte
             sqlx::query!(
-            r#"UPDATE products SET buyers_id = $1"#, id
+            r#"UPDATE products SET buyers_id = $1 WHERE id = $2"#, id, product.id
             ).execute(&self.pool).await?;
         }
         Ok(true)
